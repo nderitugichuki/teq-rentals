@@ -1,0 +1,25 @@
+services:
+  backend:
+    environment:
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0,backend
+      DJANGO_CORS_ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5174,http://localhost:5174
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.60.0-noble
+    working_dir: /workspace
+    environment:
+      CI: "true"
+      PLAYWRIGHT_BASE_URL: http://127.0.0.1:5174
+      E2E_API_BASE_URL: http://backend:8000/api/v1
+      E2E_FRONTEND_API_BASE_URL: http://backend:8000/api/v1
+      E2E_LANDLORD_EMAIL: ${E2E_LANDLORD_EMAIL:-e2e.landlord@example.com}
+      E2E_LANDLORD_PASSWORD: ${E2E_LANDLORD_PASSWORD:-StrongPass123!}
+    volumes:
+      - ./frontend:/workspace
+      - e2e_node_modules:/workspace/node_modules
+    depends_on:
+      - backend
+    command: sh -lc "npm install && npm run test:e2e"
+
+volumes:
+  e2e_node_modules:
