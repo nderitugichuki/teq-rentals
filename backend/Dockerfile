@@ -17,3 +17,5 @@ COPY . .
 RUN chmod +x /app/render-start.sh
 
 EXPOSE 8000
+
+CMD ["/app/render-start.sh"]
