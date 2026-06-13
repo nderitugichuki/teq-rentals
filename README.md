@@ -95,6 +95,8 @@ The repository includes `render.yaml` for a free-tier test deployment:
 - `teq-rentals`: React frontend as a Render static site (`type: web`, `runtime: static`).
 - `teq-rentals-db`: Render PostgreSQL database for testing.
 
+The backend web service starts through `backend/render-start.sh`, which runs migrations, collects static files, then starts Gunicorn on Render's `$PORT`.
+
 Deploy from Render:
 
 1. Push the latest code to GitHub.
