@@ -35,12 +35,12 @@ services:
       - key: USER_THROTTLE_RATE
         value: 1000/hour
 
-staticSites:
-  - name: teq-rentals
-    plan: free
+  - type: web
+    name: teq-rentals
+    runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    publishPath: dist
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*

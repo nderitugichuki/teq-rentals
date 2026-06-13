@@ -92,7 +92,7 @@ See [TESTING.md](TESTING.md) for the full test commands, Playwright setup, migra
 The repository includes `render.yaml` for a free-tier test deployment:
 
 - `teq-rentals-api`: Django API as a Docker web service.
-- `teq-rentals`: React frontend as a Render static site.
+- `teq-rentals`: React frontend as a Render static site (`type: web`, `runtime: static`).
 - `teq-rentals-db`: Render PostgreSQL database for testing.
 
 Deploy from Render:
