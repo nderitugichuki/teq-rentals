@@ -87,6 +87,42 @@ On Render, use a Cron Job with the same Django command. On a VPS, schedule it wi
 
 See [TESTING.md](TESTING.md) for the full test commands, Playwright setup, migration checks, deploy checks, and manual QA checklist.
 
+## Render Test Deployment
+
+The repository includes `render.yaml` for a free-tier test deployment:
+
+- `teq-rentals-api`: Django API as a Docker web service.
+- `teq-rentals`: React frontend as a Render static site.
+- `teq-rentals-db`: Render PostgreSQL database for testing.
+
+Deploy from Render:
+
+1. Push the latest code to GitHub.
+2. In Render, choose **New > Blueprint**.
+3. Connect this repository.
+4. Render will read `render.yaml` and create the services.
+5. If Render changes the generated service URLs, update:
+   - backend `DJANGO_ALLOWED_HOSTS`
+   - backend `DJANGO_CORS_ALLOWED_ORIGINS`
+   - backend `DJANGO_CSRF_TRUSTED_ORIGINS`
+   - frontend `VITE_API_BASE_URL`
+
+Expected free test URLs:
+
+```text
+Frontend: https://teq-rentals.onrender.com
+Backend:  https://teq-rentals-api.onrender.com
+API:      https://teq-rentals-api.onrender.com/api/v1
+```
+
+Render free PostgreSQL is for testing only. Before real users, move to a paid managed database or your VPS database with backups.
+
+For free testing, generate rent charges manually from the app. For production, create a scheduled job that runs this command monthly:
+
+```bash
+python manage.py generate_monthly_rent_charges
+```
+
 ## Backups
 
 For VPS Docker deployments, schedule daily PostgreSQL backups:

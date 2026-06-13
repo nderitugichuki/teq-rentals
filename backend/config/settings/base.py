@@ -76,17 +76,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRES_DB", default="rental_management"),
-        "USER": env("POSTGRES_USER", default="rental_user"),
-        "PASSWORD": env("POSTGRES_PASSWORD", default="rental_password"),
-        "HOST": env("POSTGRES_HOST", default="localhost"),
-        "PORT": env("POSTGRES_PORT", default="5432"),
-        "OPTIONS": {"connect_timeout": env("POSTGRES_CONNECT_TIMEOUT")},
+DATABASE_URL = env("DATABASE_URL", default=None)
+if DATABASE_URL:
+    DATABASES = {"default": env.db("DATABASE_URL")}
+    DATABASES["default"]["CONN_MAX_AGE"] = env.int("POSTGRES_CONN_MAX_AGE", default=60)
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("POSTGRES_DB", default="rental_management"),
+            "USER": env("POSTGRES_USER", default="rental_user"),
+            "PASSWORD": env("POSTGRES_PASSWORD", default="rental_password"),
+            "HOST": env("POSTGRES_HOST", default="localhost"),
+            "PORT": env("POSTGRES_PORT", default="5432"),
+            "OPTIONS": {"connect_timeout": env("POSTGRES_CONNECT_TIMEOUT")},
+        }
     }
-}
 
 AUTH_USER_MODEL = "accounts.User"
 
