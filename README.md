@@ -119,6 +119,16 @@ API:      https://teq-rentals-api.onrender.com/api/v1
 
 Render free PostgreSQL is for testing only. Before real users, move to a paid managed database or your VPS database with backups.
 
+Render free instances may not support Shell. To create the first landlord, set these environment variables on `teq-rentals-api`, redeploy once, then remove `INITIAL_LANDLORD_PASSWORD` after login succeeds:
+
+```text
+INITIAL_LANDLORD_EMAIL=landlord@example.com
+INITIAL_LANDLORD_PASSWORD=CedarStone482
+INITIAL_ACCOUNT_NAME=Main Property
+```
+
+The seed command is idempotent: if the landlord already exists, it updates the password and role instead of creating duplicates.
+
 For free testing, generate rent charges manually from the app. For production, create a scheduled job that runs this command monthly:
 
 ```bash
