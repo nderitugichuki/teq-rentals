@@ -15,6 +15,10 @@ function resolveApiBaseUrl() {
 }
 
 const API_BASE_URL = resolveApiBaseUrl();
+const RETRYABLE_STATUS_CODES = new Set([408, 429, 502, 503, 504]);
+const SAFE_RETRY_METHODS = new Set(["get", "head", "options"]);
+const AUTH_RETRY_PATHS = new Set(["/auth/token/", "/auth/token/refresh/"]);
+const MAX_TRANSIENT_RETRIES = 3;
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -31,10 +35,43 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+function delay(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function isAuthTokenRequest(config) {
+  const url = config?.url || "";
+  return AUTH_RETRY_PATHS.has(url);
+}
+
+function shouldRetryTransientError(error) {
+  const config = error.config;
+  if (!config || config._retryCount >= MAX_TRANSIENT_RETRIES) {
+    return false;
+  }
+
+  const method = (config.method || "get").toLowerCase();
+  const isSafeRequest = SAFE_RETRY_METHODS.has(method) || isAuthTokenRequest(config);
+  if (!isSafeRequest) {
+    return false;
+  }
+
+  const status = error.response?.status;
+  return !status || RETRYABLE_STATUS_CODES.has(status);
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    if (shouldRetryTransientError(error)) {
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
+      await delay(700 * originalRequest._retryCount);
+      return apiClient(originalRequest);
+    }
 
     if (error.response?.status !== 401 || originalRequest?._retry) {
       return Promise.reject(error);
